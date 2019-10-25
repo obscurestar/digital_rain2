@@ -43,13 +43,8 @@ void Rain::loopStep()
 
 byte Rain::pickHueMask()
 {
-  /*In the interest of a simple algorith, let's say that when we pick a new hue, we want it 
-   * to only include 1 or 2 'pure' colors.  Further, to make the space more chill and make
-   * going to pure red a more rare event.  We can do this with a cool math trick.
-   * We're going to use 3 bits of a byte of represent Red, Green and Blue.  If this bit is set
-   * then our mask will evaluate to true for it. To avoid black, white and pure red at the same time
-   * we chose a random number from 0-2, add 1 to it makeing 1-4 and then bit shift that result
-   * one to the left.  This gives us a value of 2-6 which corresponds to the bits:
+  /*Generate a color.  I want to use mostly calming colors with bursts of pure red being somewhat uncommon
+   * so we're going to randomly create a 3-bit mask which is never 000 or 100
    * 2 010 green
    * 3 110 yellow
    * 4 001 blue
@@ -57,11 +52,12 @@ byte Rain::pickHueMask()
    * 6 011 cyan
    */
   
-  byte cbits=(random(3)+1)<<1;  //generate value from 2-6
+  byte cbits=random(5)+2;  //generate value from 2-6
 
    /*Now let's create the rare opportunity for red.  We'll do this by inverting the bitmask
     * when our random value is 0.  if the color happens to be cyan, it will be flipped to red. 
     */
+
   if (!random(10))
   {
     cbits = ~cbits;  // ~ is the complimentary operator 010 becomes 101 etc
@@ -77,27 +73,23 @@ byte Rain::walkPixels()
   {
     for (int c=0;c<3;++c)     //Loop through RBG sub-pixels of each pixel.
     {
-      if (1 & mHueMask>>c)    //Stagger around in the relative color space.
+      if ( (mHueMask >> c) & 1 )
       {
-
-        /*
-         * Remeber that we only have one byte for the intensity of the subpixel
-         */
-        if ( pix[p].c[c] < 255)    
-        {
-          pix[p].c[c] += random(2);  //Possibly add 1 to this RGB component
-        }
-        if (pix[p].c[c] > 0) 
-        {
-          pix[p].c[c] -= random(2);  //Possibly sub 1 and possibly cancel prev op
-        }
+          signed int val = pix[p].c[c] + (random(3) - 1); // rand result set [0,1,2] - 1 = [-1, 0, 1]
+          if (val > 0 && val < 255)
+          {
+            pix[p].c[c] = val;  //Stagger around in the relative color space.
+          }
       }
       else
       {                       //Stagger towards 0, let iterator know this one doesn't count. 
         if (pix[p].c[c] > 0) //This RGB should not be set in this hue. Still draining previous color
         {
           mDirty=true;
-          pix[p].c[c] -= random(2); //Wander slowly towards 0.
+          if (!random(6))
+          {
+            pix[p].c[c] --; //Wander slowly towards 0.
+          }
         }
       }
     }

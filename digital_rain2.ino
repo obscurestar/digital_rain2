@@ -31,7 +31,7 @@ const short NUM_LEDS = 16; //Num LEDS in our array.
 //TODO protect globals in V3.
 //Global variables
 /*Handle to the LED array. We will use this to apply the values to the pixels in the array.*/
-Adafruit_NeoPixel H_LEDS = Adafruit_NeoPixel(NUM_LEDS, PIN_LED, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel H_LEDS = Adafruit_NeoPixel(NUM_LEDS, PIN_LED, NEO_GRB + NEO_KHZ800);
 
 byte MAX_BRITE=255;  //The brightest we want our display to get. 
 
@@ -44,7 +44,7 @@ COLOR pix[NUM_LEDS]; //Array of data for our pixels.  See above!
 Rain rain;           //Container class for rain algorithm.  See rain.h for details
 
 void setup() {       //Builtin function run once at start of app.
-  Serial.begin(115200); //Open serial(Com speed) Useful for debug but watch string memory use.
+  Serial.begin(9600); //Open serial(Com speed) Useful for debug but watch string memory use.
 
   //strip.setBrightness(BRIGHTNESS);  //TODO experiment with this feature.
   H_LEDS.begin(); //Initialize communication with WS281* chain.
@@ -62,7 +62,7 @@ void loop() { //Builtin function.
    * over serial, potentiometer, or digital signal and some example uses of 
    * each.
    */
-  delay(10);
+  //delay(50);
 }
 
 /*display_pix transcribes the contents of the pix array to the LED driver hardware.
@@ -74,7 +74,9 @@ void display_pix()
 {
   for (int i=0;i<NUM_LEDS;++i)
   {
-    H_LEDS.setPixelColor(i,pix[i].l);
+    COLOR c;
+    c.l = pix[i].l;
+    H_LEDS.setPixelColor( ( (NUM_LEDS - i) - 1), H_LEDS.Color(c.c[0], c.c[1], c.c[2]));
   }
   H_LEDS.show();
 }

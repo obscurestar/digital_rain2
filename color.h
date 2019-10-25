@@ -15,7 +15,7 @@ in a later version to compare the relative merits of each model.
 typedef union COLOR_T
 {
   unsigned long l;    //long representation.  It's bytes overlap the memory of the chars.
-  byte c[4];          //byte representation. 0-255 intensity for R G B and a spare 
+  byte c[4]; //byte representation. 0-255 intensity for R G B and a spare 
 } COLOR;
 
 #endif //COLOR_H
